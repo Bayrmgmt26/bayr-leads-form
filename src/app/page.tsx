@@ -19,10 +19,11 @@ export default function Page() {
   const [details, setDetails] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
 
-  const submitLead = async () => {
+const submitLead = async () => {
   console.log("Submit clicked");
 
   if (!name || !phone || !zip || !serviceId) {
+    console.log("Blocked by required fields check");
     alert("Please fill all required fields.");
     return;
   }
@@ -43,7 +44,7 @@ export default function Page() {
         location: zip,
         urgency: "Normal",
         estimatedValue: "Medium",
-        notes: details || "",
+        notes: details || ""
       }),
     });
 
@@ -57,14 +58,21 @@ export default function Page() {
 
     setStatusMsg("Lead submitted successfully!");
 
+    // Clear form after success
     setName("");
     setPhone("");
     setZip("");
     setServiceId("");
     setDetails("");
+
   } catch (error) {
     console.error("Submit failed:", error);
     setStatusMsg("Something went wrong. Please try again.");
+
+  } finally {
+    setTimeout(() => {
+      setStatusMsg("");
+    }, 3000);
   }
 };
 
