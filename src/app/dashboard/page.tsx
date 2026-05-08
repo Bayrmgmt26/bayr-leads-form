@@ -1,153 +1,64 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  User,
-} from "firebase/auth";
-import {
-  collection,
-  getDocs,
-  orderBy,
-  query,
-  Timestamp,
-} from "firebase/firestore";
-
-type Lead = {
-  id: string;
-  name: string;
-  phone: string;
-  zip: string;
-  serviceId: string;
-  details?: string;
-  status?: string;
-  createdAt?: Timestamp;
-};
+import { useMemo, useState } from "react";
+import StatsCards from "@/components/StatsCards";
+import LeadTable from "@/components/LeadTable";
+import LeadDrawer from "@/components/LeadDrawer";
+import type { Lead, LeadStatus } from "@/types/leads";
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [statusFilter, setStatusFilter] = useState<LeadStatus | "ALL">("ALL");
+  const [search, setSearch] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const filters = useMemo(() => ({ statusFilter, search }), [statusFilter, search]);
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
-    return () => unsub();
-  }, []);
-
-  const loadLeads = async () => {
-    setLoading(true);
-    setErrorMsg("");
-    try {
-      const q = query(collection(db, "leads"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-
-      const rows: Lead[] = snap.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<Lead, "id">),
-      }));
-
-      setLeads(rows);
-    } catch (err: any) {
-      setErrorMsg(err.message || "Failed to load leads");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogin = async () => {
-    setLoading(true);
-    setErrorMsg("");
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      await loadLeads();
-    } catch (err: any) {
-      setErrorMsg(err.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    setLeads([]);
-  };
-
-  useEffect(() => {
-    if (user) loadLeads();
-  }, [user]);
-
-  // --------------------
-  // LOGIN SCREEN
-  // --------------------
-  if (!user) {
-    return (
-      <main style={{ padding: 24, maxWidth: 500, margin: "0 auto" }}>
-        <h1>Admin Login</h1>
-
-        {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
-
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ display: "block", marginBottom: 10, padding: 8 }}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ display: "block", marginBottom: 10, padding: 8 }}
-        />
-
-        <button onClick={handleLogin}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </main>
-    );
-  }
-
-  // --------------------
-  // DASHBOARD SCREEN
-  // --------------------
   return (
-    <main style={{ padding: 24 }}>
-      <h1>Leads Dashboard</h1>
+    <main style={{ maxWidth: 1100, margin: "0 auto" }}>
+      <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 6 }}>Admin Dashboard</h1>
+      <p style={{ opacity: 0.8, marginBottom: 18 }}>Live leads, status tracking, and quick actions.</p>
 
-      <button onClick={handleLogout}>Logout</button>
-      <button onClick={loadLeads} style={{ marginLeft: 10 }}>
-        Refresh
-      </button>
+      <StatsCards />
 
-      {loading && <p>Loading...</p>}
-      {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          marginTop: 18,
+          marginBottom: 12,
+          flexWrap: "wrap",
+        }}
+      >
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search name, phone, zip, service..."
+          style={{
+            padding: 10,
+            borderRadius: 10,
+            border: "1px solid #333",
+            minWidth: 280,
+            flex: "1 1 280px",
+          }}
+        />
 
-      <div style={{ marginTop: 20 }}>
-        {leads.map((lead) => (
-          <div
-            key={lead.id}
-            style={{
-              border: "1px solid #ccc",
-              padding: 12,
-              marginBottom: 10,
-            }}
-          >
-            <b>{lead.name}</b>
-            <div>📞 {lead.phone}</div>
-            <div>📍 {lead.zip}</div>
-            <div>🛠 {lead.serviceId}</div>
-            {lead.details && <div>📝 {lead.details}</div>}
-          </div>
-        ))}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as LeadStatus | "ALL")}
+          style={{ padding: 10, borderRadius: 10, border: "1px solid #333" }}
+        >
+          <option value="ALL">All statuses</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="closed">Closed</option>
+        </select>
       </div>
+
+      <LeadTable filters={filters} onOpenLead={(lead) => setSelectedLead(lead)} />
+
+      <LeadDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} />
     </main>
   );
 }

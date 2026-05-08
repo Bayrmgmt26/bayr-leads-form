@@ -1,34 +1,80 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Next.js (App Router) - Production",
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    /* =========================================
+       Build & Runtime Targets
+    ========================================= */
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "jsx": "react-jsx",
+    "noEmit": true,
     "incremental": true,
+    /* =========================================
+       Interop & Imports
+    ========================================= */
+    "esModuleInterop": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": false,
+    /* =========================================
+       Strictness (Premium defaults)
+    ========================================= */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+    /* =========================================
+       Type Checking Behavior
+    ========================================= */
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    /* =========================================
+       BaseUrl + Path Aliases
+       This is what fixes @/lib/firebase errors
+    ========================================= */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
+    /* =========================================
+       Next.js Plugin
+    ========================================= */
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    /* =========================================
+       Editor Quality-of-Life
+    ========================================= */
+    "types": [
+      "node"
+    ],
+    "pretty": true
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

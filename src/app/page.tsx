@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "./firebase";
+import { db } from "../lib/firebase";
 
 const SERVICES = [
   { id: "drywall_patching_repair", label: "Drywall Patching & Repair" },
