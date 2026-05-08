@@ -20,54 +20,53 @@ export default function Page() {
   const [statusMsg, setStatusMsg] = useState("");
 
   const submitLead = async () => {
-    console.log("Submit clicked");
+  console.log("Submit clicked");
 
-    if (!name || !phone || !zip || !serviceId) {
-      console.log("Blocked by required fields check");
-      alert("Please fill all required fields.");
-      return;
+  if (!name || !phone || !zip || !serviceId) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  try {
+    setStatusMsg("Saving...");
+
+    const response = await fetch("/api/leads/import", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        leadName: name,
+        source: "Website Form",
+        serviceRequested: serviceId,
+        phone,
+        location: zip,
+        urgency: "Normal",
+        estimatedValue: "Medium",
+        notes: details || "",
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Lead submission failed");
     }
 
-    try {
-      setStatusMsg("Saving...");
+    console.log("Lead saved:", data);
 
-const response = await fetch("/api/leads/import", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    leadName: name,
-    source: "Website Form",
-    serviceRequested: serviceId,
-    phone,
-    location: zip,
-    urgency: "Normal",
-    estimatedValue: "Medium",
-    notes: details || "",
-  }),
-});
+    setStatusMsg("Lead submitted successfully!");
 
-const data = await response.json();
-
-if (!response.ok) {
-  throw new Error(data.error || "Lead submission failed");
-}
-
-setStatusMsg("Lead submitted successfully!");
-
-      // clear form
-      setName("");
-      setPhone("");
-      setZip("");
-      setServiceId("");
-      setDetails("");
-    } catch (err) {
-      console.error("Firestore error:", err);
-      setStatusMsg("Error saving. Check console.");
-      alert("Error — check console");
-    }
-  };
+    setName("");
+    setPhone("");
+    setZip("");
+    setServiceId("");
+    setDetails("");
+  } catch (error) {
+    console.error("Submit failed:", error);
+    setStatusMsg("Something went wrong. Please try again.");
+  }
+};
 
   return (
     <main style={{ padding: 24, maxWidth: 520, margin: "0 auto", fontFamily: "Arial" }}>
