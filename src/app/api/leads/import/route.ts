@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       source,
       serviceRequested,
       phone,
-      email,
+      email: email || "",
       location,
       urgency,
       estimatedValue,
