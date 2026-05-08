@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../lib/firebase";
 
 const SERVICES = [
   { id: "drywall_patching_repair", label: "Drywall Patching & Repair" },
@@ -33,19 +31,30 @@ export default function Page() {
     try {
       setStatusMsg("Saving...");
 
-      console.log("About to write to Firestore...");
-      await addDoc(collection(db, "leads"), {
-        status: "new",
-        name,
-        phone,
-        zip,
-        serviceId,
-        details,
-        createdAt: serverTimestamp(),
-      });
+const response = await fetch("/api/leads/import", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    leadName: name,
+    source: "Website Form",
+    serviceRequested: serviceId,
+    phone,
+    location: zip,
+    urgency: "Normal",
+    estimatedValue: "Medium",
+    notes: details || "",
+  }),
+});
 
-      console.log("Saved to Firestore!");
-      setStatusMsg("Saved!");
+const data = await response.json();
+
+if (!response.ok) {
+  throw new Error(data.error || "Lead submission failed");
+}
+
+setStatusMsg("Lead submitted successfully!");
 
       // clear form
       setName("");
