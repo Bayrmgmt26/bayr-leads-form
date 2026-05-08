@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       status: "new"
     });
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       leadId: docRef.id
     });
