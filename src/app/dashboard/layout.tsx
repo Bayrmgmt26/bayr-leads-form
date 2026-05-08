@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth } from "../../lib/firebase";
 import { useRouter } from "next/navigation";
 import AdminTopbar from "@/components/AdminTopbar";
 
@@ -44,3 +44,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+export const metadata = {
+  title: "Bayr Leads Dashboard",
+  description: "Admin lead dashboard",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#0b0f14",
+};
