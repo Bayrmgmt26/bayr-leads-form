@@ -4,29 +4,29 @@ import { db } from "@/lib/firebase";
 
 export async function POST(req: Request) {
   try {
-    console.log("API hit");
-
     const body = await req.json();
-    console.log("Body received:", body);
+
+    console.log("Incoming body:", body);
 
     const docRef = await addDoc(collection(db, "leads"), {
-      leadName: body.leadName,
-      source: body.source,
-      serviceRequested: body.serviceRequested,
-      phone: body.phone,
-      location: body.location,
-      urgency: body.urgency,
-      estimatedValue: body.estimatedValue,
-      notes: body.notes,
+      leadName: body.leadName || "",
+      source: body.source || "Website Form",
+      serviceRequested: body.serviceRequested || "",
+      phone: body.phone || "",
+      email: body.email || "",
+      location: body.location || "",
+      urgency: body.urgency || "Normal",
+      estimatedValue: body.estimatedValue || "Medium",
+      notes: body.notes || "",
+      status: "new",
       createdAt: serverTimestamp(),
-      status: "new"
     });
 
-    console.log("Firestore save success:", docRef.id);
+    console.log("Lead saved:", docRef.id);
 
     return NextResponse.json({
       success: true,
-      leadId: docRef.id
+      id: docRef.id
     });
 
   } catch (error: any) {
