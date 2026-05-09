@@ -11,7 +11,11 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const app =
+  getApps().length > 0
+    ? getApps()[0]!
+    : initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 export async function POST(req: Request) {
