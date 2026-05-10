@@ -1,7 +1,5 @@
 "use client";
 
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase";
 import { useState } from "react";
 
 const SERVICES = [
@@ -22,8 +20,6 @@ export default function Page() {
   const [statusMsg, setStatusMsg] = useState("");
 
   const submitLead = async () => {
-  console.log("Submit clicked");
-
   if (!name || !phone || !zip || !serviceId) {
     alert("Please fill all required fields.");
     return;
@@ -32,29 +28,40 @@ export default function Page() {
   try {
     setStatusMsg("Saving...");
 
-    console.log("Starting Firestore save...");
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
-    const savePromise = addDoc(collection(db, "leads"), {
-      leadName: name || "",
-      source: "Website Form",
-      serviceRequested: serviceId || "",
-      phone: phone || "",
-      email: "",
-      location: zip || "",
-      urgency: "Normal",
-      estimatedValue: "Medium",
-      notes: details || "",
-      status: "new",
-      createdAt: serverTimestamp(),
-    });
-
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Firestore save timed out")), 10000)
+    const response = await fetch(
+      `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/leads?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fields: {
+            leadName: { stringValue: name || "" },
+            source: { stringValue: "Website Form" },
+            serviceRequested: { stringValue: serviceId || "" },
+            phone: { stringValue: phone || "" },
+            email: { stringValue: "" },
+            location: { stringValue: zip || "" },
+            urgency: { stringValue: "Normal" },
+            estimatedValue: { stringValue: "Medium" },
+            notes: { stringValue: details || "" },
+            status: { stringValue: "new" },
+            createdAt: { timestampValue: new Date().toISOString() },
+          },
+        }),
+      }
     );
 
-    await Promise.race([savePromise, timeoutPromise]);
+    const data = await response.json();
 
-    console.log("Firestore save finished");
+    if (!response.ok) {
+      console.error("Firestore REST error:", data);
+      throw new Error("Lead submission failed");
+    }
 
     setStatusMsg("Lead submitted successfully!");
 
@@ -65,7 +72,7 @@ export default function Page() {
     setDetails("");
   } catch (error) {
     console.error("Submit failed:", error);
-    setStatusMsg("Something went wrong. Check console.");
+    setStatusMsg("Something went wrong. Please try again.");
   } finally {
     setTimeout(() => {
       setStatusMsg("");
