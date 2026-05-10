@@ -18,5 +18,5 @@ const app = !getApps().length
 export const auth = getAuth(app);
 
 export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
+  experimentalForceLongPolling: true, 
 });
