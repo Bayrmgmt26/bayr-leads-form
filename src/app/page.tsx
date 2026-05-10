@@ -21,7 +21,7 @@ export default function Page() {
   const [details, setDetails] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
 
-const submitLead = async () => {
+  const submitLead = async () => {
   console.log("Submit clicked");
 
   if (!name || !phone || !zip || !serviceId) {
@@ -32,7 +32,9 @@ const submitLead = async () => {
   try {
     setStatusMsg("Saving...");
 
-    await addDoc(collection(db, "leads"), {
+    console.log("Starting Firestore save...");
+
+    const savePromise = addDoc(collection(db, "leads"), {
       leadName: name || "",
       source: "Website Form",
       serviceRequested: serviceId || "",
@@ -46,6 +48,14 @@ const submitLead = async () => {
       createdAt: serverTimestamp(),
     });
 
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Firestore save timed out")), 10000)
+    );
+
+    await Promise.race([savePromise, timeoutPromise]);
+
+    console.log("Firestore save finished");
+
     setStatusMsg("Lead submitted successfully!");
 
     setName("");
@@ -55,7 +65,7 @@ const submitLead = async () => {
     setDetails("");
   } catch (error) {
     console.error("Submit failed:", error);
-    setStatusMsg("Something went wrong. Please try again.");
+    setStatusMsg("Something went wrong. Check console.");
   } finally {
     setTimeout(() => {
       setStatusMsg("");
