@@ -1,5 +1,7 @@
 "use client";
 
+import { collection, addDoc, serverTimestamp } from "firebase/firestore"
+import { db } from "@/lib/firebase";
 import { useState } from "react";
 
 const SERVICES = [
@@ -23,7 +25,6 @@ const submitLead = async () => {
   console.log("Submit clicked");
 
   if (!name || !phone || !zip || !serviceId) {
-    console.log("Blocked by required fields check");
     alert("Please fill all required fields.");
     return;
   }
@@ -31,44 +32,30 @@ const submitLead = async () => {
   try {
     setStatusMsg("Saving...");
 
-    const response = await fetch("/api/leads/import", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        leadName: name,
-        source: "Website Form",
-        serviceRequested: serviceId,
-        phone,
-        location: zip,
-        urgency: "Normal",
-        estimatedValue: "Medium",
-        notes: details || ""
-      }),
+    await addDoc(collection(db, "leads"), {
+      leadName: name || "",
+      source: "Website Form",
+      serviceRequested: serviceId || "",
+      phone: phone || "",
+      email: "",
+      location: zip || "",
+      urgency: "Normal",
+      estimatedValue: "Medium",
+      notes: details || "",
+      status: "new",
+      createdAt: serverTimestamp(),
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Lead submission failed");
-    }
-
-    console.log("Lead saved:", data);
 
     setStatusMsg("Lead submitted successfully!");
 
-    // Clear form after success
     setName("");
     setPhone("");
     setZip("");
     setServiceId("");
     setDetails("");
-
   } catch (error) {
     console.error("Submit failed:", error);
     setStatusMsg("Something went wrong. Please try again.");
-
   } finally {
     setTimeout(() => {
       setStatusMsg("");
