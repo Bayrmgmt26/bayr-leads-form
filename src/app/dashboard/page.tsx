@@ -20,7 +20,7 @@ export default function DashboardPage() {
     const q = query(collection(db, "leads"), orderBy("createdAt", "desc"));
 
     const unsub = onSnapshot(q, (snapshot) => {
-      const rows: Lead[] = snapshot.docs.map((doc) => {
+      const rows = snapshot.docs.map((doc) => {
         const data = doc.data() as Omit<Lead, "id">;
         return { id: doc.id, ...data };
       });
@@ -34,15 +34,22 @@ export default function DashboardPage() {
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
 
-    return leads.filter((l) => {
+    return leads.filter((l: any) => {
       const matchesStatus =
         statusFilter === "ALL" ? true : l.status === statusFilter;
 
       const haystack = [
+        l.customerName,
         l.name,
         l.phone,
+        l.email,
         l.zip,
+        l.city,
         l.service,
+        l.location,
+        l.notes,
+        l.source,
+        l.sourceUrl,
         l.details ?? "",
       ]
         .join(" ")
@@ -56,7 +63,16 @@ export default function DashboardPage() {
 
   return (
     <DashboardClientLayout>
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: 16 }}>
+      <main
+        style={{
+          maxWidth: 1100,
+          margin: "0 auto",
+          padding: 16,
+          background: "#0b2a4a",
+          minHeight: "100vh",
+          color: "white",
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -66,11 +82,19 @@ export default function DashboardPage() {
           }}
         >
           <div>
-            <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0 }}>
-              Leads Dashboard
+            <h1
+              style={{
+                fontSize: 28,
+                fontWeight: 800,
+                margin: 0,
+                color: "#b8962e",
+              }}
+            >
+              Bayr Management Lead Engine
             </h1>
-            <p style={{ marginTop: 6, opacity: 0.75 }}>
-              Realtime leads • Search, filter, update status
+
+            <p style={{ marginTop: 6, opacity: 0.8 }}>
+              Automated Lead Generation • OpenClaw • Firestore • DigitalOcean
             </p>
           </div>
         </div>
@@ -91,13 +115,13 @@ export default function DashboardPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, phone, zip, service…"
+            placeholder="Search name, phone, city, service, source..."
             style={{
               flex: "1 1 280px",
               padding: "10px 12px",
               borderRadius: 10,
-              border: "1px solid #2a2a2a",
-              background: "#0b0b0b",
+              border: "1px solid #b8962e",
+              background: "#12385f",
               color: "white",
               outline: "none",
             }}
@@ -112,8 +136,8 @@ export default function DashboardPage() {
               flex: "0 0 200px",
               padding: "10px 12px",
               borderRadius: 10,
-              border: "1px solid #2a2a2a",
-              background: "#0b0b0b",
+              border: "1px solid #b8962e",
+              background: "#12385f",
               color: "white",
               outline: "none",
             }}
@@ -134,9 +158,10 @@ export default function DashboardPage() {
             style={{
               padding: "10px 12px",
               borderRadius: 10,
-              border: "1px solid #2a2a2a",
-              background: "#121212",
-              color: "white",
+              border: "1px solid #b8962e",
+              background: "#b8962e",
+              color: "#0b2a4a",
+              fontWeight: 700,
               cursor: "pointer",
             }}
           >
@@ -148,7 +173,10 @@ export default function DashboardPage() {
           <LeadTable leads={filtered} onSelectLead={setSelectedLead} />
         </div>
 
-        <LeadDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} />
+        <LeadDrawer
+          lead={selectedLead}
+          onClose={() => setSelectedLead(null)}
+        />
       </main>
     </DashboardClientLayout>
   );

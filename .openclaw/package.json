@@ -1,0 +1,19 @@
+{
+  "name": "bayr-openclaw-lead-harvester",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "collect": "tsx craigslistCollector.ts",
+    "daily-harvest": "tsx dailyLeadHarvest.ts",
+    "test-write": "tsx testWrite.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "firebase-admin": "^13.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0",
+    "typescript": "^5.0.0"
+  }
+}

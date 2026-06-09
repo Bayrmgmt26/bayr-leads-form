@@ -21,6 +21,7 @@ export default function LoginPage() {
       setStatus("Success! Redirecting...");
       router.push("/dashboard");
     } catch (err: any) {
+      console.log(err);
       setStatus(err.message);
     }
   };
