@@ -21,10 +21,19 @@ export default function LeadTable({ leads, onSelectLead }: Props) {
             background: "#0b0b0b",
           }}
         >
-          <strong>{lead.name}</strong> — {lead.service}
-          <div style={{ fontSize: 13, opacity: 0.7 }}>
-            {lead.phone} • {lead.zip} • {lead.status}
+          <strong>
+            {lead.notes?.split(" | ")[0] || lead.customerName || lead.name || lead.service || "Untitled Lead"}
+          </strong>
+
+          <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
+            {lead.location || "No location"} • {lead.source || "Unknown source"} • {lead.status || "new"}
           </div>
+
+          {lead.sourceUrl && (
+            <div style={{ fontSize: 12, marginTop: 6, opacity: 0.75 }}>
+              {lead.sourceUrl}
+            </div>
+          )}
         </div>
       ))}
     </div>
