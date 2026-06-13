@@ -38,12 +38,26 @@ export default function LeadDrawer({ lead, onClose }: Props) {
         Close
       </button>
 
-      <h2>{lead.name}</h2>
-      <p><strong>Phone:</strong> {lead.phone}</p>
-      <p><strong>Zip:</strong> {lead.zip}</p>
-      <p><strong>Service:</strong> {lead.service}</p>
-      {lead.details && <p><strong>Details:</strong> {lead.details}</p>}
-      <p><strong>Status:</strong> {lead.status}</p>
-    </div>
-  );
+     <h2>{lead.notes?.split(" | ")[0] || lead.customerName || lead.name || "Lead Details"}</h2>
+
+<p><strong>Service:</strong> {lead.service || "N/A"}</p>
+<p><strong>Location:</strong> {lead.location || lead.zip || "N/A"}</p>
+<p><strong>Source:</strong> {lead.source || "N/A"}</p>
+<p><strong>Status:</strong> {lead.status || "new"}</p>
+
+{lead.sourceUrl && (
+  <p>
+    <strong>Original Post:</strong>{" "}
+    <a href={lead.sourceUrl} target="_blank" rel="noreferrer">
+      Open Craigslist Lead
+    </a>
+  </p>
+)}
+
+{lead.notes && (
+  <p><strong>Notes:</strong> {lead.notes}</p>
+)}
+
+</div>
+);
 }
