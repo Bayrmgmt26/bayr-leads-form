@@ -48,16 +48,22 @@ export default function LeadDrawer({ lead, onClose }: Props) {
 {lead.sourceUrl && (
   <p>
     <strong>Original Post:</strong>{" "}
-    <a href={lead.sourceUrl} target="_blank" rel="noreferrer">
+    <a
+      href={
+        lead.sourceUrl.startsWith("http")
+          ? lead.sourceUrl
+          : `https://philadelphia.craigslist.org${lead.sourceUrl}`
+      }
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        color: "#b8962e",
+        textDecoration: "underline",
+        fontWeight: 700,
+      }}
+    >
       Open Craigslist Lead
     </a>
   </p>
+)}</div>
 )}
-
-{lead.notes && (
-  <p><strong>Notes:</strong> {lead.notes}</p>
-)}
-
-</div>
-);
-}
