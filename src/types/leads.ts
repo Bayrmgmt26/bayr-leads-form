@@ -10,6 +10,7 @@ export type Lead = {
   service?: string;
   location?: string;
   notes?: string;
+  details?: string;
   source?: string;
   sourceUrl?: string;
   priority?: string;

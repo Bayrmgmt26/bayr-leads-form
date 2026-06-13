@@ -8,9 +8,9 @@ type Props = {
 
 export default function StatsCards({ leads }: Props) {
   const total = leads.length;
-  const newLeads = leads.filter(l => l.status === "NEW").length;
-  const contacted = leads.filter(l => l.status === "CONTACTED").length;
-  const scheduled = leads.filter(l => l.status === "SCHEDULED").length;
+  const newLeads = leads.filter(l => l.status === "new").length;
+  const contacted = leads.filter(l => l.status === "contacted").length;
+  const scheduled = leads.filter(l => l.status === "scheduled").length;
 
   const cardStyle: React.CSSProperties = {
     background: "#0f0f0f",
