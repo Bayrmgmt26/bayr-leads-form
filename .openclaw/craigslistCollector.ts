@@ -34,23 +34,66 @@ export async function collectCraigslistLeads() {
       if (!title) return;
 
       results.push({
-        customerName: "Craigslist Lead",
-        phone: "",
-        email: "",
-        service: source.serviceType,
-        location,
-        notes: `${title}${price ? ` | ${price}` : ""} | ${link}`,
-        source: source.name,
-        sourceUrl: link,
-        priority: "normal",
-      });
+  customerName: "Craigslist Lead",
+  phone: "",
+  email: "",
+  service: source.serviceType,
+  location,
+  notes: `${title}${price ? ` | ${price}` : ""} | ${link}`,
+  source: source.name,
+  sourceUrl: link,
+
+  priority: scoreLead({
+    notes: title,
+    service: source.serviceType,
+    location,
+  }),
+});
     });
+function scoreLead(lead: any) {
+  const text = `${lead.notes} ${lead.service} ${lead.location}`.toLowerCase();
 
+  let score = 50;
+
+  if (text.includes("drywall")) score += 30;
+  if (text.includes("repair")) score += 20;
+  if (text.includes("cleaning")) score += 20;
+  if (text.includes("move-out")) score += 25;
+  if (text.includes("junk")) score += 20;
+  if (text.includes("paint")) score += 15;
+  if (text.includes("handyman")) score += 15;
+
+  if (text.includes("philadelphia")) score += 10;
+  if (text.includes("chester")) score += 10;
+  if (text.includes("delaware county")) score += 10;
+
+  if (score >= 85) return "hot";
+  if (score >= 65) return "warm";
+  return "low";
+}
     console.log(`Found ${results.length} posts`);
+const filteredResults = results.filter((lead) => {
+  const text = `${lead.notes} ${lead.service}`.toLowerCase();
 
+  const blacklist = [
+    "wayfair",
+    "employment",
+    "hiring",
+    "career",
+    "job opening",
+    "full time",
+    "part time",
+    "recruiter",
+    "salary",
+    "hourly",
+    "assemble furniture"
+  ];
+
+  return !blacklist.some(word => text.includes(word));
+});
     const seen = new Set<string>();
 
-for (const lead of results.slice(0, 10)) {
+for (const lead of filteredResults.slice(0, 10)) {
   const key = `${lead.sourceUrl || ""}-${lead.notes || ""}`;
 
   if (seen.has(key)) {
